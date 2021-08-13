@@ -25,6 +25,7 @@ namespace CookieBooking.Infrastructure.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email,user.Email),
+                new Claim(JwtRegisteredClaimNames.NameId,user.UserId),
                 new Claim(JwtRegisteredClaimNames.Name,user.FirstName +" "+user.LastName)
             };
 

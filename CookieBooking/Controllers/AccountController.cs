@@ -31,7 +31,7 @@ namespace CookieBooking.Controllers
 
         
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto )
+        public async Task<ActionResult<AccountDto>> Login(LoginDto loginDto )
 
         {
 
@@ -46,7 +46,7 @@ namespace CookieBooking.Controllers
             {
                 if (computeHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid Password");
             }
-            UserDto userDto = new UserDto
+            AccountDto accountDto = new AccountDto
             {
                 UserId = user.UserId,
                 Token = _tokenService.CreateToken(user),
@@ -54,11 +54,11 @@ namespace CookieBooking.Controllers
                 LastName = user.LastName,
             };
 
-            return await Task.FromResult(userDto); ;
+            return await Task.FromResult(accountDto); ;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<AccountDto>> Register(RegisterDto registerDto)
         {
 
             if (  _userService.IsEmailExist(registerDto.Email)) return BadRequest("Email Already Exist ");
@@ -81,15 +81,15 @@ namespace CookieBooking.Controllers
                 };
 
               _userService.SaveUser(userModel);
-              
-                UserDto userDto = new UserDto
-                    {
+
+            AccountDto accountDto = new AccountDto
+            {
                         UserId = userModel.UserId,
                         Token = _tokenService.CreateToken(userModel),
                         FirstName = userModel.FirstName,
                         LastName = userModel.LastName,
                     };
-                    return await Task.FromResult(userDto);
+                    return await Task.FromResult(accountDto);
           
         }
 

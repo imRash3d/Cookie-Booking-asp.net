@@ -1,5 +1,10 @@
-﻿using CookieBooking.Entities;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using CookieBooking.Constraint;
+using CookieBooking.Dtos;
+using CookieBooking.Entities;
 using CookieBooking.Infrastructure.Contracts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,23 +14,32 @@ namespace CookieBooking.Infrastructure.Services
 {
     public class UserService : IUserService
     {
-        public readonly DbContextService _context;
+        private readonly DbContextService _context;
+        private readonly IMapper _mapper;
 
-
-        public UserService(DbContextService context)
+        public UserService(DbContextService context, IMapper mapper )
         {
             _context = context;
+            _mapper = mapper;
         }
-        public List<User> Getusers()
+        public List<UserDto> Getusers()
         {
-           return _context.Users.ToList();
-           
+            List<UserDto> users = _context.Users
+                 .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+                 .ToList();
+
+            List<Image> images = GetProfileImages();
+            
+            foreach( UserDto user in users)
+            {
+                Image image = images.Find(x => x.ConnectionId == user.UserId);
+                user.ProfileImage = image;
+                user.ProfileImageUrl = image?.Url;
+            }
+            return users;
         }
 
-        public User Login(string userName)
-        {
-            throw new NotImplementedException();
-        }
+     
 
         public void SaveUser(User user)
         {
@@ -37,6 +51,46 @@ namespace CookieBooking.Infrastructure.Services
         {
             return _context.Users.Any(x => x.Email.ToLower() == email.ToLower());
          
+        }
+
+        public  UserDto GetUser(string userId)
+        {
+            UserDto user = _context.Users.Where(x => x.UserId == userId)
+                .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+                .SingleOrDefault();
+
+            Image image = GetProfileImage(user.UserId);
+            user.ProfileImage = image;
+            user.ProfileImageUrl = image?.Url;
+            return user;
+        }
+
+
+        public void SaveUserProfileImage(Image image)
+        {
+            _context.Add(image);
+            _context.SaveChanges();
+        }
+
+
+        public Image  GetProfileImage(string userId)
+        {
+            return   _context.Images
+                .Where(x => x.ConnectionId == userId && x.ConnectionType == StaticKeyValue.User.Key )
+                .SingleOrDefault();
+        }
+
+        public List<Image> GetProfileImages()
+        {
+            return _context.Images.Where(x=>x.ConnectionType == StaticKeyValue.User.Key).ToList();
+        }
+
+        public void SaveDeviceToken(SaveDeviceTokenDto model)
+        {
+            var user = _context.Users.SingleOrDefault(x=>x.UserId == model.UserId);
+            user.DeviceToken = model.DeviceToken;
+            _context.Users.Update(user);
+            _context.SaveChanges();
         }
     }
 }
