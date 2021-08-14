@@ -17,6 +17,7 @@ namespace CookieBooking.Extensions
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPhotoService, PhotoService>();

@@ -14,6 +14,7 @@ namespace CookieBooking.Entities
         public string Id { get; set; }
         public string ConnectionType { get; set; }
         public string ConnectionId { get; set; }
-        //public User User { get; set; }
+
+              
     }
 }

@@ -23,9 +23,11 @@ namespace CookieBooking.Infrastructure.Services
                 );
             _cloudinary = new Cloudinary(acc);
         }
-        public Task<DeletionResult> DeletePhoto(string publicId)
+        public async Task<DeletionResult> DeletePhoto(string publicId)
         {
-            throw new NotImplementedException();
+            var deleteParams = new DeletionParams(publicId);
+            return await _cloudinary.DestroyAsync(deleteParams);
+            
         }
 
         public async Task<ImageUploadResult> UploadPhoto(IFormFile file)
